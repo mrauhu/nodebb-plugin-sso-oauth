@@ -25,7 +25,8 @@
 		path = module.parent.require('path'),
 		nconf = module.parent.require('nconf'),
 		winston = module.parent.require('winston'),
-		async = module.parent.require('async');
+		async = module.parent.require('async'),
+	  env = module.parent.require('process').env;
 
 	var authenticationController = module.parent.require('./controllers/authentication');
 
@@ -49,32 +50,33 @@
 	 */
 
 	var constants = Object.freeze({
-			type: '',	// Either 'oauth' or 'oauth2'
-			name: '',	// Something unique to your OAuth provider in lowercase, like "github", or "nodebb"
+			type: env.NODEBB_SSO_TYPE || '',	// Either 'oauth' or 'oauth2'
+			name: env.NODEBB_SSO_NAME || '',	// Something unique to your OAuth provider in lowercase, like "github", or "nodebb"
 			oauth: {
-				requestTokenURL: '',
-				accessTokenURL: '',
-				userAuthorizationURL: '',
-				consumerKey: nconf.get('oauth:key'),	// don't change this line
-				consumerSecret: nconf.get('oauth:secret'),	// don't change this line
+				requestTokenURL: env.NODEBB_OAUTH_REQUEST_TOKEN_URL || '',
+				accessTokenURL: env.NODEBB_OAUTH_ACCESS_TOKEN_URL || '',
+				userAuthorizationURL: env.NODEBB_OAUTH_USER_AUTHORIZATION_URL || '',
+				consumerKey: env.NODEBB_OAUTH_CONSUMER_KEY || nconf.get('oauth:key'),	// don't change this line
+				consumerSecret: env.NODEBB_OAUTH_CONSUMER_SECRET || nconf.get('oauth:secret'),	// don't change this line
 			},
 			oauth2: {
-				authorizationURL: '',
-				tokenURL: '',
-				clientID: nconf.get('oauth:id'),	// don't change this line
-				clientSecret: nconf.get('oauth:secret'),	// don't change this line
+				authorizationURL: env.NODEBB_OAUTH2_AUTHORIZATION_URL || '',
+				tokenURL: env.NODEBB_OAUTH2_TOKEN_URL || '',
+				clientID: env.NODEBB_OAUTH2_CLIENT_ID || nconf.get('oauth:id'),	// don't change this line
+				clientSecret: env.NODEBB_OAUTH2_CLIENT_SECRET || nconf.get('oauth:secret'),	// don't change this line
 			},
-			userRoute: ''	// This is the address to your app's "user profile" API endpoint (expects JSON)
+			userRoute: env.NODEBB_SSO_USER_ROUTE || '',	// This is the address to your app's "user profile" API endpoint (expects JSON)
+      callbackURL: env.NODEBB_SSO_CALLBACK_URL || '/auth/' + env.NODEBB_SSO_NAME + '/callback'
 		}),
 		configOk = false,
 		OAuth = {}, passportOAuth, opts;
 
 	if (!constants.name) {
-		winston.error('[sso-oauth] Please specify a name for your OAuth provider (library.js:32)');
+		winston.error('[sso-oauth] Please specify a name for your OAuth provider, use env NODEBB_SSO_NAME', );
 	} else if (!constants.type || (constants.type !== 'oauth' && constants.type !== 'oauth2')) {
-		winston.error('[sso-oauth] Please specify an OAuth strategy to utilise (library.js:31)');
+		winston.error('[sso-oauth] Please specify an OAuth strategy to utilise, use env NODEBB_SSO_TYPE');
 	} else if (!constants.userRoute) {
-		winston.error('[sso-oauth] User Route required (library.js:31)');
+		winston.error('[sso-oauth] User Route required, use env NODEBB_SSO_USER_ROUTE');
 	} else {
 		configOk = true;
 	}
@@ -86,7 +88,7 @@
 			if (constants.type === 'oauth') {
 				// OAuth options
 				opts = constants.oauth;
-				opts.callbackURL = nconf.get('url') + '/auth/' + constants.name + '/callback';
+				opts.callbackURL = nconf.get('url') + constants.callbackURL;
 
 				passportOAuth.Strategy.prototype.userProfile = function(token, secret, params, done) {
 					this._oauth.get(constants.userRoute, token, secret, function(err, body, res) {
@@ -108,7 +110,7 @@
 			} else if (constants.type === 'oauth2') {
 				// OAuth 2 options
 				opts = constants.oauth2;
-				opts.callbackURL = nconf.get('url') + '/auth/' + constants.name + '/callback';
+				opts.callbackURL = nconf.get('url') + constants.callbackURL;
 
 				passportOAuth.Strategy.prototype.userProfile = function(accessToken, done) {
 					this._oauth2.get(constants.userRoute, accessToken, function(err, body, res) {
@@ -150,7 +152,7 @@
 			strategies.push({
 				name: constants.name,
 				url: '/auth/' + constants.name,
-				callbackURL: '/auth/' + constants.name + '/callback',
+				callbackURL: constants.callbackURL,
 				icon: 'fa-check-square',
 				scope: (constants.scope || '').split(',')
 			});
@@ -170,7 +172,7 @@
 		// console.log(data);
 
 		var profile = {};
-		profile.id = data.id;
+		profile.id = data.sub;
 		profile.displayName = data.name;
 		profile.emails = [{ value: data.email }];
 
@@ -178,8 +180,8 @@
 		// profile.isAdmin = data.isAdmin ? true : false;
 
 		// Delete or comment out the next TWO (2) lines when you are ready to proceed
-		process.stdout.write('===\nAt this point, you\'ll need to customise the above section to id, displayName, and emails into the "profile" object.\n===');
-		return callback(new Error('Congrats! So far so good -- please see server log for details'));
+		// process.stdout.write('===\nAt this point, you\'ll need to customise the above section to id, displayName, and emails into the "profile" object.\n===');
+		// return callback(new Error('Congrats! So far so good -- please see server log for details'));
 
 		callback(null, profile);
 	}

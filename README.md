@@ -1,13 +1,25 @@
 # NodeBB OAuth SSO
 
-NodeBB Plugin that allows users to login/register via any configured OAuth provider. **Please note** that this is not a complete plugin, but merely a skeleton with which you can create your own OAuth SSO plugin for NodeBB (and hopefully share it with others!)
+NodeBB Plugin that allows users to login/register via any OAuth provider. This is a complete plugin.
 
-## How to Adapt
+## How to setup
 
-1. Fork this plugin
-    * ![](http://i.imgur.com/APWHJsa.png)
-1. Add the OAuth credentials (around line 30 of `library.js`)
-1. Update profile information (around line 137 of `library.js`) with information from the user API call
+1. Set environment variables:
+    * `NODEBB_SSO_TYPE`: `oauth` or `oauth2`
+    * `NODEBB_SSO_NAME`: your provider name in lowercase
+    * `NODEBB_SSO_USER_ROUTE`: your SSO provider "user profile" API endpoint
+    * (optional) `NODEBB_SSO_CALLBACK_URL`, by default: */auth/`NODEBB_SSO_NAME`/callback*
+    * OAuth:
+      * `NODEBB_OAUTH_REQUEST_TOKEN_URL`
+      * `NODEBB_OAUTH_ACCESS_TOKEN_URL`
+      * `NODEBB_OAUTH_USER_AUTHORIZATION_URL`
+      * `NODEBB_OAUTH_CONSUMER_KEY`
+      * `NODEBB_OAUTH_CONSUMER_SECRET`
+    * OAuth2:
+      * `NODEBB_OAUTH2_AUTHORIZATION_URL`
+      * `NODEBB_OAUTH2_TOKEN_URL`
+      * `NODEBB_OAUTH2_CLIENT_ID`
+      * `NODEBB_OAUTH2_CLIENT_SECRET`
 1. Activate this plugin from the plugins page
 1. Restart your NodeBB
 1. Let NodeBB take care of the rest
