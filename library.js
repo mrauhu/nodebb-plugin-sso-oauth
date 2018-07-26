@@ -66,7 +66,9 @@
 				clientSecret: env.NODEBB_OAUTH2_CLIENT_SECRET || nconf.get('oauth:secret'),	// don't change this line
 			},
 			userRoute: env.NODEBB_SSO_USER_ROUTE || '',	// This is the address to your app's "user profile" API endpoint (expects JSON)
-      callbackURL: env.NODEBB_SSO_CALLBACK_URL || '/auth/' + env.NODEBB_SSO_NAME + '/callback'
+      callbackURL: env.NODEBB_SSO_CALLBACK_URL || '/auth/' + env.NODEBB_SSO_NAME + '/callback',
+      scope: env.NODEBB_SSO_SCOPE || 'profile',
+      icon: env.NODEBB_SSO_ICON || 'fa-check-square'
 		}),
 		configOk = false,
 		OAuth = {}, passportOAuth, opts;
@@ -153,7 +155,7 @@
 				name: constants.name,
 				url: '/auth/' + constants.name,
 				callbackURL: constants.callbackURL,
-				icon: 'fa-check-square',
+				icon: constants.icon,
 				scope: (constants.scope || '').split(',')
 			});
 
