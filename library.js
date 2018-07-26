@@ -180,8 +180,8 @@
 		profile.emails = [{ value: data.email }];
 
 		// Do you want to automatically make somebody an admin? This line might help you do that...
-		profile.isAdmin = typeof user.roles !== 'undefined'
-      ? Array.isArray(user.roles) && user.roles.indexOf('admin') > -1
+		profile.isAdmin = typeof data.roles !== 'undefined'
+      ? Array.isArray(data.roles) && data.roles.indexOf('admin') > -1
       : false;
 
 		// Delete or comment out the next TWO (2) lines when you are ready to proceed
