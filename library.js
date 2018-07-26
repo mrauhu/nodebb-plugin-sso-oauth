@@ -136,12 +136,13 @@
 			opts.passReqToCallback = true;
 
 			passport.use(constants.name, new passportOAuth(opts, function(req, token, secret, profile, done) {
-				OAuth.login({
-					oAuthid: profile.id,
-					handle: profile.displayName,
-					email: profile.emails[0].value,
-					isAdmin: profile.isAdmin
-				}, function(err, user) {
+			  var payload = Object.assign({}, profile, {
+          oAuthid: profile.id,
+          handle: profile.displayName,
+          email: profile.emails[0].value,
+          isAdmin: profile.isAdmin
+        });
+				OAuth.login(payload, function(err, user) {
 					if (err) {
 						return done(err);
 					}
@@ -173,13 +174,15 @@
 		// Find out what is available by uncommenting this line:
 		// console.log(data);
 
-		var profile = {};
+		var profile = data;
 		profile.id = data.sub;
-		profile.displayName = data.name;
+		profile.displayName = data.preferred_username;
 		profile.emails = [{ value: data.email }];
 
 		// Do you want to automatically make somebody an admin? This line might help you do that...
-		// profile.isAdmin = data.isAdmin ? true : false;
+		profile.isAdmin = typeof user.roles !== 'undefined'
+      ? Array.isArray(user.roles) && user.roles.indexOf('admin') > -1
+      : false;
 
 		// Delete or comment out the next TWO (2) lines when you are ready to proceed
 		// process.stdout.write('===\nAt this point, you\'ll need to customise the above section to id, displayName, and emails into the "profile" object.\n===');
