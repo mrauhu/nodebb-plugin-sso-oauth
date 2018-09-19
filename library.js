@@ -233,9 +233,7 @@
 							username: payload.handle,
 							email: payload.email,
               // Force GDPR consent true, skip the GDPR banner on login via OAuth 2.0
-              gdpr_consent: constants.skip_gdpr
-                ? 1
-                : 0,
+              gdpr_consent: true,
 						}, function(err, uid) {
 							if(err) {
 								return callback(err);
