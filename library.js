@@ -69,6 +69,7 @@
       callbackURL: env.NODEBB_SSO_CALLBACK_URL || '/auth/' + env.NODEBB_SSO_NAME + '/callback',
       scope: env.NODEBB_SSO_SCOPE || 'profile',
       icon: env.NODEBB_SSO_ICON || 'fa-check-square',
+      // TODO: Fix not working option, now it is forced set to true in code. Maybe problem with value `true`.
       skip_gdpr: env.NODEBB_SSO_SKIP_GDPR === 'true'
 		}),
 		configOk = false,
