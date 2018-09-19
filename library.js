@@ -68,7 +68,8 @@
 			userRoute: env.NODEBB_SSO_USER_ROUTE || '',	// This is the address to your app's "user profile" API endpoint (expects JSON)
       callbackURL: env.NODEBB_SSO_CALLBACK_URL || '/auth/' + env.NODEBB_SSO_NAME + '/callback',
       scope: env.NODEBB_SSO_SCOPE || 'profile',
-      icon: env.NODEBB_SSO_ICON || 'fa-check-square'
+      icon: env.NODEBB_SSO_ICON || 'fa-check-square',
+      skip_gdpr: env.NODEBB_SSO_SKIP_GDPR === 'true'
 		}),
 		configOk = false,
 		OAuth = {}, passportOAuth, opts;
@@ -230,7 +231,11 @@
 					if (!uid) {
 						User.create({
 							username: payload.handle,
-							email: payload.email
+							email: payload.email,
+              // Force GDPR consent true, skip the GDPR banner on login via OAuth 2.0
+              gdpr_consent: constants.skip_gdpr
+                ? 1
+                : 0,
 						}, function(err, uid) {
 							if(err) {
 								return callback(err);

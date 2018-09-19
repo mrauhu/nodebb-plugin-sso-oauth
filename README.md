@@ -11,6 +11,7 @@ NodeBB Plugin that allows users to login/register via any OAuth provider. This i
     * (optional) `NODEBB_SSO_CALLBACK_URL`, by default: */auth/`NODEBB_SSO_NAME`/callback*
     * (optional) `NODEBB_SSO_SCOPE`: comma separated list, by default: *profile*
     * (optional) `NODEBB_SSO_ICON`: Font Awesome icon name, by default: *fa-check-square*
+    * (optional) `NODEBB_SSO_SKIP_GDPR`: Set *true* to skip GDPR banner, by default: *false*
     * OAuth:
       * `NODEBB_OAUTH_REQUEST_TOKEN_URL`
       * `NODEBB_OAUTH_ACCESS_TOKEN_URL`
